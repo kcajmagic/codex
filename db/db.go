@@ -216,7 +216,17 @@ func (db *Connection) configure(maxIdleConns int, maxOpenConns int) {
 	if err != nil {
 		fmt.Printf("%s\n", err)
 	}
-	fmt.Printf("%#v\n", res)
+
+	neato := make([]map[string]interface{}, 0)
+	for res.Next() {
+		data := make(map[string]interface{})
+		err = res.Scan(&data)
+		if err != nil {
+			break
+		}
+		neato = append(neato, data)
+	}
+	fmt.Printf("%#v\n", neato)
 }
 
 func (db *Connection) setupHealthCheck(interval time.Duration) {
