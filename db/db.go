@@ -218,7 +218,7 @@ func (db *Connection) configure(maxIdleConns int, maxOpenConns int) {
 	}
 
 	neato := make([]map[string]interface{}, 0)
-	for res.Next() {
+	for res.NextResultSet() {
 		data := make(map[string]interface{})
 		err = res.Scan(&data)
 		if err != nil {
@@ -227,6 +227,7 @@ func (db *Connection) configure(maxIdleConns int, maxOpenConns int) {
 		neato = append(neato, data)
 	}
 	fmt.Printf("%#v\n", neato)
+	res.Close()
 }
 
 func (db *Connection) setupHealthCheck(interval time.Duration) {
