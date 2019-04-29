@@ -21,6 +21,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -212,22 +213,25 @@ func validateConfig(config *Config) {
 func (db *Connection) configure(maxIdleConns int, maxOpenConns int) {
 	db.gennericDB.SetMaxIdleConns(maxIdleConns)
 	db.gennericDB.SetMaxOpenConns(maxOpenConns)
-	res, err := db.gennericDB.Query("SHOW SESSION ALL;")
+	rows, err := db.gennericDB.Query("SHOW SESSION ALL;")
 	if err != nil {
 		fmt.Printf("%s\n", err)
 	}
 
-	neato := make([]map[string]interface{}, 0)
-	for res.NextResultSet() {
-		data := make(map[string]interface{})
-		err = res.Scan(&data)
+	defer rows.Close()
+	for rows.Next() {
+		name := ""
+		value := ""
+		err := rows.Scan(&name, &value)
 		if err != nil {
-			break
+			log.Fatal(err)
 		}
-		neato = append(neato, data)
+		fmt.Println(name, value)
 	}
-	fmt.Printf("%#v\n", neato)
-	res.Close()
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (db *Connection) setupHealthCheck(interval time.Duration) {
