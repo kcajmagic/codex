@@ -212,7 +212,7 @@ func validateConfig(config *Config) {
 func (db *Connection) configure(maxIdleConns int, maxOpenConns int) {
 	db.gennericDB.SetMaxIdleConns(maxIdleConns)
 	db.gennericDB.SetMaxOpenConns(maxOpenConns)
-	res, err := db.gennericDB.Exec("SHOW SESSION ALL;")
+	res, err := db.gennericDB.Query("SHOW SESSION ALL;")
 	if err != nil {
 		fmt.Printf("%s\n", err)
 	}
