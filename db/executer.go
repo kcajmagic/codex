@@ -32,12 +32,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-var RANDOM_ID uint8
-
-func init() {
-	RANDOM_ID = uint8(rand.Intn(256))
-}
-
 type (
 	finder interface {
 		findRecords(out *[]Record, limit int, where ...interface{}) error
@@ -129,7 +123,7 @@ func (b *dbDecorator) insert(records []Record) error {
 }
 
 func generateID(record Record) uint64 {
-	s := fmt.Sprintf("%d%d%d", RANDOM_ID, hash(record.DeviceID), record.BirthDate)
+	s := fmt.Sprintf("%d%d%d", uint8(rand.Intn(256)), hash(record.DeviceID), record.BirthDate)
 	i, err := strconv.ParseUint(s, 10, 64)
 	if err != nil && i != 0 {
 		panic(err)

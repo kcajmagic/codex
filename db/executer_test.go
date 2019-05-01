@@ -43,10 +43,8 @@ func TestConflict(t *testing.T) {
 	}
 	recordB := Record{
 		DeviceID:  "mac:123456",
-		BirthDate: time.Now().Unix() + 1,
+		BirthDate: time.Now().Unix(),
 	}
-
-	assert.NotEqual(recordB.BirthDate, recordA.BirthDate)
 
 	idA := generateID(recordA)
 	idB := generateID(recordB)
