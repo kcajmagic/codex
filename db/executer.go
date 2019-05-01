@@ -23,11 +23,20 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/Comcast/codex/blacklist"
+	"hash/fnv"
+	"math/rand"
+	"strconv"
 	"strings"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
+
+var RANDOM_ID uint8
+
+func init() {
+	RANDOM_ID = uint8(rand.Intn(256))
+}
 
 type (
 	finder interface {
@@ -85,6 +94,11 @@ func (b *dbDecorator) insert(records []Record) error {
 	placeholdersArr := make([]string, 0, len(records))
 
 	for _, obj := range records {
+		// generate id if not specified
+		if obj.ID == 0 {
+			obj.ID = generateID(obj)
+		}
+
 		scope := b.DB.NewScope(obj)
 		fields := scope.Fields()
 		placeholders := make([]string, 0, len(fields))
@@ -112,6 +126,20 @@ func (b *dbDecorator) insert(records []Record) error {
 		return err
 	}
 	return nil
+}
+
+func generateID(record Record) uint64 {
+	s := fmt.Sprintf("%d%d%d", RANDOM_ID, hash(record.DeviceID), record.BirthDate)
+	i, err := strconv.ParseUint(s, 10, 64)
+	if err != nil && i != 0 {
+		panic(err)
+	}
+	return i
+}
+func hash(s string) uint16 {
+	h := fnv.New32a()
+	h.Write([]byte(s))
+	return uint16(h.Sum32())
 }
 
 func (b *dbDecorator) delete(value *Record, limit int, where ...interface{}) (int64, error) {
