@@ -91,7 +91,6 @@ type Connection struct {
 }
 
 type Record struct {
-	ID        uint64    `json:"id"`
 	Type      EventType `json:"type" gorm:"type:int"`
 	DeviceID  string    `json:"deviceid"`
 	BirthDate int64     `json:"birthdate"`

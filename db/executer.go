@@ -80,7 +80,7 @@ func (b *dbDecorator) insert(records []Record) error {
 	for i := range mainFields {
 		// If primary key has blank value (0 for int, "" for string, nil for interface ...), skip it.
 		// If field is ignore field, skip it.
-		if mainFields[i].IsIgnored {
+		if (mainFields[i].IsPrimaryKey && mainFields[i].IsBlank) || (mainFields[i].IsIgnored) {
 			continue
 		}
 		quoted = append(quoted, mainScope.Quote(mainFields[i].DBName))
@@ -88,11 +88,6 @@ func (b *dbDecorator) insert(records []Record) error {
 	placeholdersArr := make([]string, 0, len(records))
 
 	for _, obj := range records {
-		// generate id if not specified
-		if obj.ID == 0 {
-			obj.ID = generateID(obj)
-		}
-
 		scope := b.DB.NewScope(obj)
 		fields := scope.Fields()
 		placeholders := make([]string, 0, len(fields))
