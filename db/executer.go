@@ -86,7 +86,7 @@ func (b *dbDecorator) insert(records []Record) error {
 	for i := range mainFields {
 		// If primary key has blank value (0 for int, "" for string, nil for interface ...), skip it.
 		// If field is ignore field, skip it.
-		if (mainFields[i].IsPrimaryKey && mainFields[i].IsBlank) || (mainFields[i].IsIgnored) {
+		if mainFields[i].IsIgnored {
 			continue
 		}
 		quoted = append(quoted, mainScope.Quote(mainFields[i].DBName))
