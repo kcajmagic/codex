@@ -75,14 +75,15 @@ type Config struct {
 
 // Connection contains the tools to edit the database.
 type Connection struct {
-	finder      finder
-	findList    findList
-	mutliInsert multiinserter
-	deleter     deleter
-	closer      closer
-	pinger      pinger
-	stats       stats
-	gennericDB  *sql.DB
+	finder       finder
+	findList     findList
+	deviceFinder deviceFinder
+	mutliInsert  multiinserter
+	deleter      deleter
+	closer       closer
+	pinger       pinger
+	stats        stats
+	gennericDB   *sql.DB
 
 	pruneLimit  int
 	health      *health.Health
@@ -163,6 +164,7 @@ func CreateDbConnection(config Config, provider provider.Provider, health *healt
 	db.findList = conn
 	db.mutliInsert = conn
 	db.deleter = conn
+	db.deviceFinder = conn
 	db.closer = conn
 	db.pinger = conn
 	db.stats = conn
@@ -255,6 +257,10 @@ func (db *Connection) setupMetrics() {
 		db.measures.SQLMaxLifetimeClosed.Add(float64(stats.MaxLifetimeClosed - prevMaxLifetimeClosed))
 	})
 	db.stopThreads = append(db.stopThreads, metricsStop)
+}
+
+func (db *Connection) GetDeviceList(offset string, limit int) ([]string, error) {
+	return db.deviceFinder.getList(offset, limit)
 }
 
 // GetRecords returns a list of records for a given device

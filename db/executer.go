@@ -43,6 +43,9 @@ type (
 	deleter interface {
 		delete(value *Record, limit int, where ...interface{}) (int64, error)
 	}
+	deviceFinder interface {
+		getList(offset string, limit int, where ...interface{}) ([]string, error)
+	}
 	pinger interface {
 		ping() error
 	}
@@ -124,6 +127,13 @@ func (b *dbDecorator) delete(value *Record, limit int, where ...interface{}) (in
 		db = b.Delete(value, where...)
 	}
 	return db.RowsAffected, db.Error
+}
+
+func (b *dbDecorator) getList(offset string, limit int, where ...interface{}) ([]string, error) {
+	var result []string
+	// Raw SQL
+	db := b.Limit(limit).Select("device_id").Find(&[]Record{}, where).Group("device_id").Where("device_id > ?", offset).Pluck("device_id", &result)
+	return result, db.Error
 }
 
 func (b *dbDecorator) ping() error {
