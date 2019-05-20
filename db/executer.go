@@ -132,7 +132,8 @@ func (b *dbDecorator) delete(value *Record, limit int, where ...interface{}) (in
 func (b *dbDecorator) getList(offset string, limit int, where ...interface{}) ([]string, error) {
 	var result []string
 	// Raw SQL
-	db := b.Limit(limit).Select("device_id").Find(&[]Record{}, where).Group("device_id").Where("device_id > ?", offset).Pluck("device_id", &result)
+	db := b.Raw("SELECT device_id from devices.events WHERE device_id > ? GROUP BY device_id LIMIT ?", offset, limit).Pluck("device_id", &result)
+	//db := b.Limit(limit).Select("device_id").Find(&[]Record{}, where).Group("device_id").Where("device_id > ?", offset).Pluck("device_id", &result)
 	return result, db.Error
 }
 
